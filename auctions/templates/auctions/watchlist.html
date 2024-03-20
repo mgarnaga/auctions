@@ -1,0 +1,28 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+<div class="subhead"><h3>Watchlist</h3></div>
+    
+    <div class="container">
+        {% if not favorites %}
+            <div>You haven't added anything to Watchlist yet.</div>
+        {% else %}
+            {% for listing in favorites %}
+            <div class="item"> 
+                <div><a href="{% url 'listing' listing.0.id %}">{{ listing.0.title }}<br>
+                <img class="item_img" src="{{ listing.0.pic }}"/></a></div>
+                {% if not listing.0.active %}
+                <div>Auction closed. <form action="{% url 'watchlist' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{ listing.0.id }}" name="id"/>
+                    <input style="font-size: 14px;" type="submit" name="action" value="Remove from Watchlist"/>
+                </form></div>
+                {% else %}<div>Current price: ${{ listing.1 }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    
+{% endblock %}

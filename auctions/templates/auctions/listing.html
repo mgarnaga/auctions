@@ -1,0 +1,114 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<div class="listing_body">
+    {% if not listing.active %}
+        <h2 class="subhead">AUCTION CLOSED</h2>
+    {% endif %}
+
+    {% if message %}
+        <div style="font-size: 16px; color:rgb(84, 51, 124);">{{ message }}</div>
+    {% endif %}
+    <h4>{{ listing.title }}</h4>
+    <div class="listing_content">
+        <div class="column">
+        <div class="listing_info">
+
+            <img class="listing_img" src="{{ listing.pic }}"/>
+            <div> {{ listing.description }}</div>
+            <div> Initial price: <strong>{{ listing.price }} $</strong></div>
+
+            <hr>
+
+            <div> Posted on {{ listing.date }}</div> 
+            <div>Seller: {{ listing.owner }} 
+                {% if user == listing.owner and listing.active %}
+                    <form action="{% url 'listing' listing.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="submit" name="action" value="Close auction"/>
+                    </form>
+                {% endif %}
+            </div>
+            <hr>
+        </div>
+    </div>
+
+        <hr>
+        <div class="column">
+        <div class="listing_info">
+            {% if listing.active %}
+            <div>
+                <form action="{% url 'listing' listing.id %}" method="post">
+                {% csrf_token %}
+                <input style="font-size: 16px;" type="submit" name="action" 
+                value="{% if favorited %}Remove from Watchlist{% else %}Add to Watchlist{% endif %}"/>
+                </form>
+            </div>
+                
+            <hr>
+
+            <div>
+            {% if bid_log %}
+                Bids made for this listing:
+                <ul>
+                {% for bid in bid_log %}
+                    <li>${{ bid.the_bid }} by {{ bid.user }}</li>
+                {% endfor %}
+                </ul>
+                <div><strong>Current highest bid is ${{ current_win }} by {{ current_winner }}</strong></div>
+            {% else %}
+                Be the first one to bid on this item!
+            {% endif %}
+            </div>
+
+            <div>
+                <form action="{% url 'listing' listing.id %}" method="post">
+                    {% csrf_token %}
+                    {{ bid_form }}
+                    <input style="font-size: 16px;" type="submit" name="action" value="Go!"/>
+                </form>
+            </div>
+            {% else %}
+            <div>AUCTION CLOSED {% if bid_log %}WITH WINNER BID: ${{ current_win }}{% endif %}</div>
+            {% if user == current_winner %}
+                <div><h4>Congratulations! You won the auction!</h4></div>
+                <div><strong>Please contact the seller via email: {{ listing.owner.email }}</strong></div>
+            {% endif %}
+            <hr>
+            {% endif %}
+        </div>
+    </div>
+
+        <hr>
+        <div class="column">
+        <div class="listing_info">
+            {% if comment_log %}
+                <strong>Comments:</strong>
+                {% for comment in comment_log %}
+                    <div class="comment">{{ comment.text }}</div>
+                    <div class="comment_info">By {{ comment.author }} on {{ comment.date }}</div>
+                {% endfor %}
+            {% else %}
+                <div>No comments on this item!</div>
+            {% endif %}
+        </div>
+        </div>
+        
+        <div class="column">
+        {% if listing.active %}
+        <div class="listing_info">
+            <div class="listing_form">
+                <form action="{% url 'listing' listing.id %}" method="post">
+                    {% csrf_token %}
+                    {{ comment_form }}
+                    <br>
+                    <input type="submit" name="action" value="Add Comment"/>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    </div>
+</div>
+
+{% endblock %}

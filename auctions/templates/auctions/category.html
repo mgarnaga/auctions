@@ -1,0 +1,18 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<div class="subhead"><h3>{{ name }}</h3></div>
+    
+    <div class="container">
+        {% for listing in listings %}
+        <div class="item">
+            <div><a href="{% url 'listing' listing.0.id %}">{{ listing.0.title }}{% if not listing.0.active %} (CLOSED){% endif %}<br><br>
+                <img class="item_img" src="{{ listing.0.pic }}"/></a></div>
+                {% if listing.0.active %}<div>Current price: ${{ listing.1 }}</div>{% endif %}
+        </div>
+        {% empty %}
+            <div>No listings yet...</div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
